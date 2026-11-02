@@ -1714,10 +1714,10 @@ function convertLunarToSolar(lunarMonth, lunarDay) {
         }
 
         function deleteMember(id) {
-            //let pwd = prompt("Nhập mật khẩu quản trị để xóa thành viên:");
-            //if (pwd !== ADMIN_PASSWORD) {
-               // alert("Sai mật khẩu! Không được phép xóa.");
-               // return;
+            let pwd = prompt("Nhập mật khẩu quản trị để xóa thành viên:");
+            if (pwd !== ADMIN_PASSWORD) {
+                alert("Sai mật khẩu! Không được phép xóa.");
+                return;
             }
 
             if (confirm("Ông có chắc chắn muốn xóa thành viên này khỏi gia phả?")) {
