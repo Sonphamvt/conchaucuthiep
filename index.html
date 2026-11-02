@@ -790,12 +790,9 @@ function convertLunarToSolar(lunarMonth, lunarDay) {
 
             if (members.length === 0) return;
 
-            let rootMembers = members.filter(m => {
-                if (m.fatherId || m.motherId) return false;
-                const isSomeoneSpouse = members.some(other => (other.spouseIds || []).includes(m.id));
-                if (isSomeoneSpouse && m.gender !== 'Nam') return false;
-                return m.generation === 1;
-            });
+      // Chỉ định rõ ID của cụ gốc mà ông muốn hiển thị nhánh con cháu
+            let targetAncestorId = "1"; // Thay ID của cụ vào đây
+            let rootMembers = members.filter(m => m.id === targetAncestorId);
 
             if (rootMembers.length === 0) {
                 rootMembers = members.filter(m => !m.fatherId && !m.motherId && (!m.spouseIds || m.spouseIds.length === 0));
