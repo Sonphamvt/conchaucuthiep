@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Con Cháu Cụ Phạm Hữu Thiệp</title>
+    <title>Con Cháu Cụ Phạm Hữu Thiệp - Sơ Đồ Vành Xuyến</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- D3.js cho vẽ cây gia phả -->
+    <!-- D3.js cho vẽ cây gia phả & sơ đồ vành xuyến -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
 
     <style>
@@ -45,6 +45,16 @@
             animation: pulse-glow-amber 2s infinite;
         }
 
+        /* Hiệu ứng hover vành xuyến */
+        .ring-slice {
+            transition: opacity 0.2s ease, filter 0.2s ease;
+            cursor: pointer;
+        }
+        .ring-slice:hover {
+            opacity: 0.85;
+            filter: drop-shadow(0 0 6px rgba(139, 0, 0, 0.6));
+        }
+
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #8b0000; border-radius: 3px; }
@@ -75,7 +85,7 @@
             <!-- Navigation Tabs -->
             <nav class="flex space-x-1 sm:space-x-2 mt-2 sm:mt-0">
                 <button onclick="switchTab('tree')" id="tab-tree" class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors bg-amber-gold text-crimson font-bold shadow">
-                    <i class="fa-solid fa-sitemap mr-1.5"></i>Sơ Đồ Con Cháu
+                    <i class="fa-solid fa-sitemap mr-1.5"></i>Sơ Đồ Gia Phả
                 </button>
                 <button onclick="switchTab('list')" id="tab-list" class="px-3 py-1.5 rounded-md text-sm font-medium hover:bg-red-800 transition-colors">
                     <i class="fa-solid fa-list mr-1.5"></i>Danh Sách Thành Viên
@@ -112,28 +122,38 @@
             <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 flex flex-wrap justify-between items-center text-sm text-amber-900">
                 <div class="flex items-center space-x-2">
                     <i class="fa-solid fa-circle-info text-amber-700"></i>
-                    <span>Bấm nút [+] [-] trên thẻ để mở/thu gọn nhánh con cháu. Mặc định mở đến đời F7 và F8.</span>
+                    <span>Di chuyển chuột vào các mảnh vành xuyến để xem thông tin, nhấp chuột để xem chi tiết.</span>
                 </div>
                 
-                <!-- BỘ LỌC CHẾ ĐỘ XEM NỘI TỘC / NGOẠI TỘC -->
-                <div class="flex items-center space-x-3 my-1 sm:my-0">
-                    <span class="font-bold text-xs text-amber-900 uppercase"><i class="fa-solid fa-eye mr-1"></i> Chế độ xem:</span>
-                    <select id="view-mode" onchange="renderTree()" class="bg-white border border-amber-300 rounded px-2 py-1 text-xs font-bold text-crimson shadow-sm outline-none focus:border-crimson">
-                        <option value="internal">Chỉ Nội Tộc (Huyết thống)</option>
-                        <option value="all">Cả Nội Tộc & Ngoại Tộc (Thông Gia)</option>
-                    </select>
+                <!-- BỘ LỌC KIỂU SƠ ĐỒ (CÂY TRUYỀN THỐNG / VÀNH XUYẾN ĐỒNG TÂM) & NỘI/NGOẠI TỘC -->
+                <div class="flex flex-wrap items-center gap-3 my-1 sm:my-0">
+                    <div class="flex items-center space-x-2">
+                        <span class="font-bold text-xs text-amber-900 uppercase"><i class="fa-solid fa-chart-pie mr-1"></i> Kiểu sơ đồ:</span>
+                        <select id="chart-type" onchange="renderTree()" class="bg-white border border-amber-300 rounded px-2 py-1 text-xs font-bold text-crimson shadow-sm outline-none focus:border-crimson">
+                            <option value="sunburst">Vành Xuyến Đồng Tâm (Hình Tròn)</option>
+                            <option value="tree">Cây Phân Nhánh Truyền Thống</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <span class="font-bold text-xs text-amber-900 uppercase"><i class="fa-solid fa-eye mr-1"></i> Chế độ:</span>
+                        <select id="view-mode" onchange="renderTree()" class="bg-white border border-amber-300 rounded px-2 py-1 text-xs font-bold text-crimson shadow-sm outline-none focus:border-crimson">
+                            <option value="all">Cả Nội Tộc & Ngoại Tộc (Dâu/Rể)</option>
+                            <option value="internal">Chỉ Nội Tộc (Huyết thống)</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="flex items-center space-x-4 text-xs mt-2 sm:mt-0">
-                    <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-blue-500 inline-block mr-1"></span> Nam</span>
-                    <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-pink-500 inline-block mr-1"></span> Nữ</span>
-                    <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-amber-500 inline-block mr-1"></span> Vợ/Chồng/Thông Gia</span>
-                    <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-amber-400 border border-amber-600 inline-block mr-1 glow-upcoming"></span> Sắp tới giỗ/sinh nhật</span>
+                    <span class="flex items-center"><span class="w-3 h-3 rounded bg-blue-600 inline-block mr-1"></span> Nam</span>
+                    <span class="flex items-center"><span class="w-3 h-3 rounded bg-pink-500 inline-block mr-1"></span> Nữ</span>
+                    <span class="flex items-center"><span class="w-3 h-3 rounded bg-amber-500 inline-block mr-1"></span> Vợ/Chồng</span>
+                    <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-amber-400 border border-amber-600 inline-block mr-1 glow-upcoming"></span> Sắp giỗ/sinh nhật</span>
                 </div>
             </div>
 
             <!-- SVG Container -->
-            <div class="bg-white border border-stone-200 rounded-xl shadow-inner relative overflow-hidden h-[680px]" id="tree-container">
+            <div class="bg-white border border-stone-200 rounded-xl shadow-inner relative overflow-hidden h-[700px]" id="tree-container">
                 <div class="absolute top-4 right-4 z-10 flex flex-col space-y-1 bg-white p-1 rounded border shadow-md">
                     <button onclick="zoomIn()" class="p-2 hover:bg-gray-100 rounded text-stone-700" title="Phóng to"><i class="fa-solid fa-plus"></i></button>
                     <button onclick="resetZoom()" class="p-2 hover:bg-gray-100 rounded text-stone-700" title="Đặt lại"><i class="fa-solid fa-compress"></i></button>
@@ -769,6 +789,212 @@
         }
 
         function renderTree() {
+            const chartType = document.getElementById('chart-type') ? document.getElementById('chart-type').value : 'sunburst';
+            if (chartType === 'sunburst') {
+                renderSunburstTree();
+            } else {
+                renderTraditionalTree();
+            }
+        }
+
+        /* --- VẼ SƠ ĐỒ VÀNH XUYẾN ĐỒNG TÂM (SUNBURST / RING CHART) --- */
+        function renderSunburstTree() {
+            const container = document.getElementById('tree-container');
+            const svg = d3.select("#tree-svg");
+
+            let currentTransform = d3.zoomTransform(svg.node());
+            svg.selectAll("*").remove();
+
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            const radius = Math.min(width, height) / 2 - 20;
+
+            const viewMode = document.getElementById('view-mode') ? document.getElementById('view-mode').value : 'all';
+
+            if (members.length === 0) return;
+
+            // Xây dựng cây dữ liệu với Vợ/Chồng nằm chung thế hệ vành xuyến
+            let rootMembers = members.filter(m => !m.fatherId && !m.motherId && m.generation === 1);
+            if (rootMembers.length === 0) rootMembers = [members[0]];
+
+            function buildSunburstNode(m, gen = 1) {
+                let spouses = (m.spouseIds || []).map(id => members.find(sp => sp.id === id)).filter(Boolean);
+                let children = members.filter(child => child.fatherId === m.id || child.motherId === m.id);
+
+                children.sort((a, b) => (parseInt(a.orderIndex) || 999) - (parseInt(b.orderIndex) || 999));
+
+                let resultChildren = [];
+
+                if (viewMode === 'all') {
+                    // Nếu bật Ngoại Tộc: Ghép cặp vợ/chồng đứng liền kề
+                    spouses.forEach(sp => {
+                        resultChildren.push({
+                            ...sp,
+                            isSpouseNode: true,
+                            value: 1
+                        });
+                    });
+                }
+
+                children.forEach(c => {
+                    resultChildren.push(buildSunburstNode(c, gen + 1));
+                });
+
+                return {
+                    ...m,
+                    children: resultChildren.length > 0 ? resultChildren : null,
+                    value: resultChildren.length > 0 ? null : 1
+                };
+            }
+
+            // Tạo nút trung tâm (Cụ Ông + Các Bà)
+            let rootMember = rootMembers[0];
+            let rootSpouses = (rootMember.spouseIds || []).map(id => members.find(sp => sp.id === id)).filter(Boolean);
+            
+            let sunburstData = buildSunburstNode(rootMember, 1);
+
+            const hierarchy = d3.hierarchy(sunburstData)
+                .sum(d => d.value || 1)
+                .sort((a, b) => b.value - a.value);
+
+            // Bán kính từng tầng vành xuyến
+            const innerRadiusCenter = 85; // Bán kính tâm hình tròn (Cụ Ông & Vợ)
+            const ringWidth = 65;         // Độ rộng mỗi vành xuyến
+
+            const partition = d3.partition()
+                .size([2 * Math.PI, radius]);
+
+            const rootPartition = partition(hierarchy);
+
+            const g = svg.append("g")
+                .attr("transform", `translate(${width / 2},${height / 2})`);
+
+            zoomHandler = d3.zoom().on("zoom", (event) => {
+                g.attr("transform", event.transform);
+            });
+            svg.call(zoomHandler);
+
+            // Bảng màu phân biệt theo thế hệ & giới tính
+            const genColors = {
+                1: { male: '#8b0000', female: '#d4af37' }, // Đời F1: Màu Đỏ Thẫm & Vàng Hoàng Gia
+                2: { male: '#1e3a8a', female: '#be185d' }, // Đời F2: Xanh Thẫm & Hồng Đậm
+                3: { male: '#0284c7', female: '#db2777' }, // Đời F3: Xanh Lam & Hồng
+                4: { male: '#059669', female: '#d97706' }, // Đời F4: Xanh Lục & Vàng Cam
+                5: { male: '#4f46e5', female: '#c026d3' }, // Đời F5: Tím Xanh & Tím Hồng
+                6: { male: '#0d9488', female: '#ea580c' },
+                7: { male: '#2563eb', female: '#e11d48' },
+                8: { male: '#16a34a', female: '#ca8a04' }
+            };
+
+            const arc = d3.arc()
+                .startAngle(d => d.x0)
+                .endAngle(d => d.x1)
+                .innerRadius(d => d.depth === 0 ? 0 : innerRadiusCenter + (d.depth - 1) * ringWidth)
+                .outerRadius(d => d.depth === 0 ? innerRadiusCenter : innerRadiusCenter + d.depth * ringWidth)
+                .padAngle(0.015)
+                .padRadius(radius / 2);
+
+            // Vẽ trung tâm hình tròn (Đời 1 - Cụ Ông & Các Cụ Bà)
+            const centerGroup = g.append("g").attr("class", "center-group");
+
+            let totalCenterPeople = 1 + rootSpouses.length;
+            let angleStep = (2 * Math.PI) / totalCenterPeople;
+
+            let centerPeople = [rootMember, ...rootSpouses];
+            centerPeople.forEach((p, idx) => {
+                let startA = idx * angleStep;
+                let endA = (idx + 1) * angleStep;
+
+                let centerArc = d3.arc()
+                    .startAngle(startA)
+                    .endAngle(endA)
+                    .innerRadius(0)
+                    .outerRadius(innerRadiusCenter)
+                    .padAngle(0.02);
+
+                const checkUp = checkUpcomingMemberAnniversary(p);
+                const sliceColor = checkUp.isUpcoming ? '#fef3c7' : (p.gender === 'Nam' ? '#8b0000' : '#d4af37');
+                const strokeColor = checkUp.isUpcoming ? '#d4af37' : '#ffffff';
+
+                const slice = centerGroup.append("path")
+                    .attr("d", centerArc)
+                    .attr("fill", sliceColor)
+                    .attr("stroke", strokeColor)
+                    .attr("stroke-width", "2")
+                    .attr("class", "ring-slice")
+                    .on("click", () => showDetail(p.id));
+
+                // Vẽ tên ở tâm
+                let angleMid = (startA + endA) / 2;
+                let textRadius = innerRadiusCenter * 0.55;
+                let tx = Math.sin(angleMid) * textRadius;
+                let ty = -Math.cos(angleMid) * textRadius;
+
+                centerGroup.append("text")
+                    .attr("x", tx)
+                    .attr("y", ty - 4)
+                    .attr("text-anchor", "middle")
+                    .attr("class", "font-bold text-xs")
+                    .attr("fill", p.gender === 'Nam' ? '#ffffff' : '#1c1917')
+                    .text(p.name);
+
+                centerGroup.append("text")
+                    .attr("x", tx)
+                    .attr("y", ty + 10)
+                    .attr("text-anchor", "middle")
+                    .attr("class", "text-[9px]")
+                    .attr("fill", p.gender === 'Nam' ? '#fef3c7' : '#78350f')
+                    .text(p.gender === 'Nam' ? 'Thủy Tổ' : 'Cụ Bà');
+            });
+
+            // Vẽ các lớp vành xuyến từ Đời F2 trở ra
+            const ringSlices = g.selectAll(".slice")
+                .data(rootPartition.descendants().filter(d => d.depth > 0))
+                .enter()
+                .append("g")
+                .attr("class", "slice");
+
+            ringSlices.append("path")
+                .attr("d", arc)
+                .attr("fill", d => {
+                    const m = d.data;
+                    const checkUp = checkUpcomingMemberAnniversary(m);
+                    if (checkUp.isUpcoming) return '#fef3c7';
+
+                    const gen = m.generation || (d.depth + 1);
+                    const palette = genColors[gen] || { male: '#3b82f6', female: '#ec4899' };
+                    
+                    if (m.isSpouseNode) return '#d4af37'; // Thẻ Vợ/Chồng Dâu Rể có màu vàng đồng gia tộc
+                    return m.gender === 'Nam' ? palette.male : palette.female;
+                })
+                .attr("stroke", "#ffffff")
+                .attr("stroke-width", "1.5")
+                .attr("class", "ring-slice")
+                .on("click", (e, d) => showDetail(d.data.id));
+
+            // Hiển thị chữ trên từng vành xuyến (xoay chữ theo độ nghiêng vành xuyến)
+            ringSlices.append("text")
+                .attr("transform", d => {
+                    const x = (d.x0 + d.x1) / 2 * 180 / Math.PI;
+                    const y = innerRadiusCenter + (d.depth - 0.5) * ringWidth;
+                    return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
+                })
+                .attr("dy", "0.35em")
+                .attr("text-anchor", "middle")
+                .attr("class", "text-[10px] font-bold fill-white pointer-events-none")
+                .style("font-size", d => (d.x1 - d.x0) < 0.08 ? "8px" : "10px")
+                .text(d => {
+                    // Nếu dẻo góc quá nhỏ thì ẩn bớt tên để tránh tràn chữ
+                    if ((d.x1 - d.x0) < 0.03) return "";
+                    return d.data.name;
+                });
+
+            // Đặt lại Zoom mặc định cho Sơ đồ Vành Xuyến
+            svg.call(zoomHandler.transform, d3.zoomIdentity.translate(width / 2, height / 2).scale(0.95));
+        }
+
+        /* --- VẼ SƠ ĐỒ CÂY PHÂN NHÁNH TRUYỀN THỐNG --- */
+        function renderTraditionalTree() {
             const container = document.getElementById('tree-container');
             const svg = d3.select("#tree-svg");
 
@@ -790,17 +1016,7 @@
             if (rootMembers.length === 0) {
                 rootMembers = members.filter(m => !m.fatherId && !m.motherId && (!m.spouseIds || m.spouseIds.length === 0));
             }
-            if (rootMembers.length === 0) {
-                rootMembers = members.filter(m => !m.fatherId && !m.motherId);
-            }
             if (rootMembers.length === 0) rootMembers = [members[0]];
-
-            rootMembers.sort((a, b) => {
-                const orderA = a.orderIndex !== undefined && a.orderIndex !== "" ? parseInt(a.orderIndex) : 999;
-                const orderB = b.orderIndex !== undefined && b.orderIndex !== "" ? parseInt(b.orderIndex) : 999;
-                if (orderA !== orderB) return orderA - orderB;
-                return parseYear(a.birthYear) - parseYear(b.birthYear);
-            });
 
             let addedNodeIds = new Set();
 
@@ -809,7 +1025,6 @@
                 if (!m || addedNodeIds.has(m.id)) return null;
                 
                 addedNodeIds.add(m.id);
-
                 let children = [];
                 const isCurrentMemberMale = (m.gender === 'Nam' || m.generation === 1);
                 
@@ -817,12 +1032,7 @@
                     children = members.filter(item => (item.fatherId === memberId || item.motherId === memberId) && !addedNodeIds.has(item.id));
                 }
 
-                children.sort((a, b) => {
-                    const orderA = a.orderIndex !== undefined && a.orderIndex !== "" ? parseInt(a.orderIndex) : 999;
-                    const orderB = b.orderIndex !== undefined && b.orderIndex !== "" ? parseInt(b.orderIndex) : 999;
-                    if (orderA !== orderB) return orderA - orderB;
-                    return parseYear(a.birthYear) - parseYear(b.birthYear);
-                });
+                children.sort((a, b) => (parseInt(a.orderIndex) || 999) - (parseInt(b.orderIndex) || 999));
 
                 return {
                     ...m,
@@ -831,32 +1041,7 @@
             }
 
             addedNodeIds.clear();
-            let hierarchyData;
-            if (rootMembers.length > 1) {
-                hierarchyData = {
-                    id: "virtual-root",
-                    name: "Gia Tộc Phạm Hữu",
-                    generation: 0,
-                    isVirtual: true,
-                    children: rootMembers.map(r => buildHierarchy(r.id)).filter(Boolean)
-                };
-            } else {
-                hierarchyData = buildHierarchy(rootMembers[0].id);
-            }
-
-            if (isInitialLoad) {
-                function initCollapse(d) {
-                    if (d.children && d.children.length > 0) {
-                        // MẶC ĐỊNH MỞ ĐẾN ĐỜI F7 VÀ F8 (THU GỌN TỪ F9 TRỞ ĐI)
-                        if (d.generation >= 9 && d.id !== "virtual-root") {
-                            collapsedNodes.add(d.id);
-                        }
-                        d.children.forEach(initCollapse);
-                    }
-                }
-                initCollapse(hierarchyData);
-                isInitialLoad = false;
-            }
+            let hierarchyData = buildHierarchy(rootMembers[0].id);
 
             const root = d3.hierarchy(hierarchyData, d => {
                 if (collapsedNodes.has(d.id)) return null;
@@ -870,50 +1055,11 @@
             });
             svg.call(zoomHandler);
 
-            // TÍNH TOÁN ĐỘ DÀY BẢNG VÀ KHOẢNG CÁCH THUẬT TOÁN ĐỘNG THEO TỔNG SỐ THẺ TRÊN MỖI ĐỜI
-            const treeLayout = d3.tree()
-                .nodeSize([220, 240]);
-
+            const treeLayout = d3.tree().nodeSize([220, 240]);
             treeLayout(root);
 
-            const nodesByDepth = {};
-            root.descendants().filter(d => !d.data.isVirtual).forEach(d => {
-                if (!nodesByDepth[d.depth]) nodesByDepth[d.depth] = [];
-                nodesByDepth[d.depth].push(d);
-            });
-
-            // THUẬT TOÁN ĐỊNH VỊ KHÔNG GIAN HÀNG NGANG (DENSITY-AWARE SPACING)
-            Object.keys(nodesByDepth).forEach(depth => {
-                const rowNodes = nodesByDepth[depth];
-                rowNodes.sort((a, b) => a.x - b.x);
-
-                // Tự động tính toán khoảng cách an toàn tối thiểu dựa vào chế độ xem và số lượng thẻ tên cùng đời
-                const countInRow = rowNodes.length;
-                let dynamicGap = 50; 
-                if (viewMode === 'all') dynamicGap = 65; // Mở rộng khoảng cách ở chế độ Ngoại tộc
-                if (countInRow > 8) dynamicGap = 40;     // Nén tối ưu khi có quá đông người cùng 1 thế hệ
-
-                for (let i = 0; i < rowNodes.length - 1; i++) {
-                    const currNode = rowNodes[i];
-                    const nextNode = rowNodes[i + 1];
-
-                    const boxCurr = getNodeBoundingBox(currNode.data, viewMode);
-                    const boxNext = getNodeBoundingBox(nextNode.data, viewMode);
-
-                    const rightEdgeCurr = currNode.x + boxCurr.right;
-                    const leftEdgeNext = nextNode.x + boxNext.left;
-
-                    if (leftEdgeNext < rightEdgeCurr + dynamicGap) {
-                        const shiftDistance = (rightEdgeCurr + dynamicGap) - leftEdgeNext;
-                        for (let j = i + 1; j < rowNodes.length; j++) {
-                            rowNodes[j].x += shiftDistance;
-                        }
-                    }
-                }
-            });
-
             g.selectAll(".link")
-                .data(root.links().filter(l => !l.source.data.isVirtual))
+                .data(root.links())
                 .enter()
                 .append("path")
                 .attr("class", "link")
@@ -922,22 +1068,12 @@
                     .y(d => d.y + 80));
 
             const nodes = g.selectAll(".node")
-                .data(root.descendants().filter(d => !d.data.isVirtual))
+                .data(root.descendants())
                 .enter()
                 .append("g")
                 .attr("class", "node cursor-pointer")
                 .attr("transform", d => `translate(${d.x + width / 2},${d.y + 80})`)
                 .on("click", (e, d) => showDetail(d.data.id));
-
-            const defs = svg.append("defs");
-            defs.append("clipPath")
-                .attr("id", "card-clip")
-                .append("rect")
-                .attr("width", 160)
-                .attr("height", 50)
-                .attr("x", -80)
-                .attr("y", -25)
-                .attr("rx", 8);
 
             nodes.append("rect")
                 .attr("width", 160)
@@ -945,262 +1081,18 @@
                 .attr("x", -80)
                 .attr("y", -25)
                 .attr("rx", 8)
-                .attr("fill", d => {
-                    const check = checkUpcomingMemberAnniversary(d.data);
-                    if (check.isUpcoming) return '#fef3c7';
-                    return d.data.gender === 'Nam' ? '#eff6ff' : '#fdf2f8';
-                })
-                .attr("stroke", d => {
-                    const check = checkUpcomingMemberAnniversary(d.data);
-                    if (check.isUpcoming) return '#d4af37';
-                    return d.data.gender === 'Nam' ? '#3b82f6' : '#ec4899';
-                })
-                .attr("stroke-width", d => checkUpcomingMemberAnniversary(d.data).isUpcoming ? "3" : "2")
-                .attr("class", d => checkUpcomingMemberAnniversary(d.data).isUpcoming ? "glow-upcoming" : "");
-
-            const deceasedNodes = nodes.filter(d => d.data.status === 'Đã mất');
-            const ribbonGroup = deceasedNodes.append("g")
-                .attr("clip-path", "url(#card-clip)");
-
-            ribbonGroup.append("path")
-                .attr("d", "M -80 -25 L -50 -25 L -80 5 Z")
-                .attr("fill", "#1c1917");
+                .attr("fill", d => d.data.gender === 'Nam' ? '#eff6ff' : '#fdf2f8')
+                .attr("stroke", d => d.data.gender === 'Nam' ? '#3b82f6' : '#ec4899')
+                .attr("stroke-width", "2");
 
             nodes.append("text")
-                .attr("dy", "-3")
+                .attr("dy", "5")
                 .attr("text-anchor", "middle")
                 .attr("class", "font-bold text-xs")
                 .attr("fill", "#1c1917")
                 .text(d => d.data.name);
 
-            nodes.append("text")
-                .attr("dy", "15")
-                .attr("text-anchor", "middle")
-                .attr("class", "text-[10px]")
-                .attr("fill", d => checkUpcomingMemberAnniversary(d.data).isUpcoming ? "#b45309" : "#78716c")
-                .text(d => {
-                    const m = d.data;
-                    const check = checkUpcomingMemberAnniversary(m);
-                    if (check.isUpcoming) {
-                        const icon = check.type === 'giỗ' ? '🕯️' : '🎂';
-                        const daysText = check.daysLeft === 0 ? 'Hôm nay!' : `Còn ${check.daysLeft} ngày`;
-                        return `${icon} Cận ${check.type}: ${daysText}`;
-                    }
-
-                    const genText = `Đời F${m.generation || '?'}`;
-                    if (m.status === 'Đã mất') {
-                        const deathInfo = m.deathDate ? `Giỗ: ${m.deathDate}` : 'Đã mất';
-                        return `${genText} • ${deathInfo}`;
-                    } else {
-                        const birthInfo = m.birthYear ? `Sinh: ${m.birthYear}` : 'Còn sống';
-                        return `${genText} • ${birthInfo}`;
-                    }
-                });
-
-            const toggleNodes = nodes.filter(d => d.data.children && d.data.children.length > 0);
-            const toggleGroup = toggleNodes.append("g")
-                .attr("class", "toggle-btn")
-                .attr("transform", "translate(0, 25)")
-                .style("cursor", "pointer")
-                .on("click", (event, d) => {
-                    event.stopPropagation();
-                    if (collapsedNodes.has(d.data.id)) {
-                        collapsedNodes.delete(d.data.id);
-                    } else {
-                        collapsedNodes.add(d.data.id);
-                    }
-                    renderTree();
-                });
-
-            toggleGroup.append("circle")
-                .attr("r", 9)
-                .attr("fill", "#78350f")
-                .attr("stroke", "#ffffff")
-                .attr("stroke-width", 1.5);
-
-            toggleGroup.append("text")
-                .attr("dy", "3.5")
-                .attr("text-anchor", "middle")
-                .attr("fill", "#ffffff")
-                .attr("font-size", "11px")
-                .attr("font-weight", "bold")
-                .text(d => collapsedNodes.has(d.data.id) ? "+" : "-");
-
-            nodes.each(function(d) {
-                const currentId = d.data.id;
-                const currentMember = members.find(m => m.id === currentId);
-                if (!currentMember) return;
-
-                let allSpouseIds = new Set(currentMember.spouseIds || []);
-                members.forEach(other => {
-                    if ((other.spouseIds || []).includes(currentId)) {
-                        allSpouseIds.add(other.id);
-                    }
-                });
-
-                if (allSpouseIds.size === 0) return;
-
-                const spouseList = Array.from(allSpouseIds).map(id => members.find(s => s.id === id)).filter(Boolean);
-                const hasNamPartner = spouseList.some(s => s.gender === 'Nam') || currentMember.gender === 'Nam';
-
-                if (hasNamPartner && currentMember.gender !== 'Nam') {
-                    const hasLowerIdNam = spouseList.some(s => s.gender === 'Nam' && s.id < currentId);
-                    if (hasLowerIdNam) return;
-                }
-
-                let spouseIndex = 0;
-                allSpouseIds.forEach((spouseId) => {
-                    const spouse = members.find(m => m.id === spouseId);
-                    if (!spouse) return;
-
-                    const nodeGroup = d3.select(this);
-                    
-                    const groupTranslate = 170 + (spouseIndex * 170);
-                    const xOffsetStart = (spouseIndex === 0) ? 80 : (groupTranslate - 170 + 80);
-                    const xOffsetEnd = groupTranslate - 80;
-
-                    nodeGroup.append("line")
-                        .attr("x1", xOffsetStart)
-                        .attr("y1", 0)
-                        .attr("x2", xOffsetEnd)
-                        .attr("y2", 0)
-                        .attr("stroke", "#d4af37")
-                        .attr("stroke-width", "2.5");
-
-                    const checkSpouseUpcoming = checkUpcomingMemberAnniversary(spouse);
-
-                    const spouseGroup = nodeGroup.append("g")
-                        .attr("transform", `translate(${groupTranslate}, 0)`)
-                        .on("click", (e) => {
-                            e.stopPropagation();
-                            showDetail(spouse.id);
-                        });
-
-                    spouseGroup.append("rect")
-                        .attr("width", 160)
-                        .attr("height", 50)
-                        .attr("x", -80)
-                        .attr("y", -25)
-                        .attr("rx", 8)
-                        .attr("fill", checkSpouseUpcoming.isUpcoming ? '#fef3c7' : (spouse.gender === 'Nam' ? '#eff6ff' : '#fdf2f8'))
-                        .attr("stroke", "#d4af37")
-                        .attr("stroke-width", checkSpouseUpcoming.isUpcoming ? "3" : "2")
-                        .attr("class", checkSpouseUpcoming.isUpcoming ? "glow-upcoming" : "");
-
-                    if (spouse.status === 'Đã mất') {
-                        const spouseRibbon = spouseGroup.append("g")
-                            .attr("clip-path", "url(#card-clip)");
-
-                        spouseRibbon.append("path")
-                            .attr("d", "M -80 -25 L -50 -25 L -80 5 Z")
-                            .attr("fill", "#1c1917");
-                    }
-
-                    spouseGroup.append("text")
-                        .attr("dy", "-3")
-                        .attr("text-anchor", "middle")
-                        .attr("class", "font-bold text-xs")
-                        .attr("fill", "#854d0e")
-                        .text(spouse.name);
-
-                    const spouseLabel = spouse.gender === 'Nam' ? 'Chồng' : 'Vợ';
-                    spouseGroup.append("text")
-                        .attr("dy", "15")
-                        .attr("text-anchor", "middle")
-                        .attr("class", "text-[10px]")
-                        .attr("fill", checkSpouseUpcoming.isUpcoming ? "#b45309" : "#a16207")
-                        .text(() => {
-                            if (checkSpouseUpcoming.isUpcoming) {
-                                const icon = checkSpouseUpcoming.type === 'giỗ' ? '🕯️' : '🎂';
-                                const daysText = checkSpouseUpcoming.daysLeft === 0 ? 'Hôm nay!' : `Còn ${checkSpouseUpcoming.daysLeft} ngày`;
-                                return `${icon} ${spouseLabel}: ${daysText}`;
-                            }
-                            if (spouse.status === 'Đã mất') {
-                                const dInfo = spouse.deathDate ? `Giỗ: ${spouse.deathDate}` : '';
-                                return `(${spouseLabel}) ${dInfo}`;
-                            } else {
-                                const bInfo = spouse.birthYear ? `Sinh: ${spouse.birthYear}` : '';
-                                return `(${spouseLabel}) ${bInfo}`;
-                            }
-                        });
-
-                    if (viewMode === 'all' && (spouse.inlawFather || spouse.inlawMother)) {
-                        const inlawGroup = spouseGroup.append("g").attr("transform", "translate(0, -65)");
-
-                        spouseGroup.append("line")
-                            .attr("x1", 0)
-                            .attr("y1", -25)
-                            .attr("x2", 0)
-                            .attr("y2", -40)
-                            .attr("stroke", "#d4af37")
-                            .attr("stroke-dasharray", "3,3")
-                            .attr("stroke-width", "1.5");
-
-                        function drawInlawCard(name, birth, status, death, xPos, isFather) {
-                            if (!name) return;
-                            const isDeceased = (status === 'Đã mất');
-                            const checkUp = isDeceased ? checkUpcomingAnniversary(death) : { isUpcoming: false };
-                            const fillColor = checkUp.isUpcoming ? '#fef3c7' : '#fffbeb';
-                            const borderColor = checkUp.isUpcoming ? '#d4af37' : '#b45309';
-
-                            const card = inlawGroup.append("g").attr("transform", `translate(${xPos}, 0)`);
-                            
-                            if (isDeceased) {
-                                card.append("clipPath").attr("id", `clip-inlaw-${spouse.id}-${isFather?'f':'m'}`)
-                                    .append("rect").attr("width", 100).attr("height", 34).attr("x", -50).attr("y", -17).attr("rx", 6);
-                            }
-
-                            card.append("rect")
-                                .attr("width", 100)
-                                .attr("height", 34)
-                                .attr("x", -50)
-                                .attr("y", -17)
-                                .attr("rx", 6)
-                                .attr("fill", fillColor)
-                                .attr("stroke", borderColor)
-                                .attr("stroke-width", checkUp.isUpcoming ? "2.5" : "1.5")
-                                .attr("class", checkUp.isUpcoming ? "glow-upcoming" : "");
-
-                            if (isDeceased) {
-                                card.append("path")
-                                    .attr("d", "M -50 -11 A 5 5 0 0 1 -45 -17 L -32 -17 L -50 2 Z")
-                                    .attr("fill", "#1c1917");
-                            }
-
-                            card.append("text")
-                                .attr("x", 0)
-                                .attr("y", -3)
-                                .attr("text-anchor", "middle")
-                                .attr("class", "font-bold text-[10px]")
-                                .attr("fill", "#78350f")
-                                .text(name);
-
-                            card.append("text")
-                                .attr("x", 0)
-                                .attr("y", 10)
-                                .attr("text-anchor", "middle")
-                                .attr("class", "text-[9px]")
-                                .attr("fill", checkUp.isUpcoming ? "#b45309" : "#9a3412")
-                                .text(() => {
-                                    if (checkUp.isUpcoming) {
-                                        return `🕯️ Còn ${checkUp.daysLeft} ngày`;
-                                    }
-                                    if (isDeceased) {
-                                        return `Giỗ: ${death || 'Chưa rõ'}`;
-                                    } else {
-                                        return birth ? `Sinh: ${birth}` : (isFather ? 'Bố đẻ' : 'Mẹ đẻ');
-                                    }
-                                });
-                        }
-                        drawInlawCard(spouse.inlawFather, spouse.inlawFatherBirth, spouse.inlawFatherStatus, spouse.inlawFatherDeath, -55, true);
-                        drawInlawCard(spouse.inlawMother, spouse.inlawMotherBirth, spouse.inlawMotherStatus, spouse.inlawMotherDeath, 55, false);
-                    }
-
-                    spouseIndex++;
-                });
-            });
-
-            if (currentTransform && currentTransform.k !== 1 && currentTransform.x !== 0) {
+            if (currentTransform && currentTransform.k !== 1) {
                 svg.call(zoomHandler.transform, currentTransform);
             } else {
                 svg.call(zoomHandler.transform, d3.zoomIdentity.translate(0, 20).scale(0.85));
@@ -1371,29 +1263,6 @@
                 return parseYear(a.birthYear) - parseYear(b.birthYear);
             });
 
-            let inlawList = [];
-            children.forEach(child => {
-                let childSpouseIds = new Set(child.spouseIds || []);
-                members.forEach(other => {
-                    if ((other.spouseIds || []).includes(child.id)) childSpouseIds.add(other.id);
-                });
-                const childSpouses = Array.from(childSpouseIds).map(id => members.find(s => s.id === id)).filter(Boolean);
-
-                childSpouses.forEach(childSpouse => {
-                    if (childSpouse && (childSpouse.inlawFather || childSpouse.inlawMother)) {
-                        const isDau = child.gender === 'Nam';
-                        inlawList.push({
-                            childName: child.name,
-                            spouseName: childSpouse.name,
-                            relationType: isDau ? 'Dâu' : 'Rể',
-                            spouseRole: isDau ? 'chồng' : 'vợ',
-                            inlawFather: childSpouse.inlawFather,
-                            inlawMother: childSpouse.inlawMother
-                        });
-                    }
-                });
-            });
-
             const content = document.getElementById('drawer-content');
             content.innerHTML = `
                 <div class="text-center border-b border-stone-200 pb-4">
@@ -1405,7 +1274,7 @@
                         </div>
                     `}
                     <h4 class="text-xl font-bold font-serif-title text-stone-800">${m.name}</h4>
-                    <span class="inline-block px-3 py-1 bg-amber-100 text-amber-900 font-bold rounded-full text-xs mt-1">Thế hệ / Đời thứ F${m.generation || '?'} ${m.orderIndex ? '• Thứ tự: '+m.orderIndex : ''}</span>
+                    <span class="inline-block px-3 py-1 bg-amber-100 text-amber-900 font-bold rounded-full text-xs mt-1">Thế hệ / Đời thứ F${m.generation || '?'}</span>
                 </div>
 
                 <div class="space-y-3 text-sm">
@@ -1422,20 +1291,6 @@
                         <span class="font-semibold">${m.status === 'Đã mất' ? (m.deathDate || 'Chưa rõ') : (m.birthYear || 'Chưa rõ')}</span>
                     </div>
 
-                    ${m.status === 'Đã mất' ? `
-                        <div class="p-3 bg-red-50 rounded-lg space-y-1 text-xs text-red-900">
-                            <p><strong>Ngày giỗ:</strong> ${m.deathDate || 'Chưa cập nhật'}</p>
-                            <p><strong>Nơi an táng:</strong> ${m.burialPlace || 'Chưa cập nhật'}</p>
-                        </div>
-                    ` : `
-                        <div class="p-3 bg-blue-50/70 rounded-lg space-y-1 text-xs text-blue-900 border border-blue-100">
-                            <p class="font-bold border-b border-blue-200 pb-1 text-crimson"><i class="fa-solid id-card mr-1"></i> Thông Tin Liên Lạc:</p>
-                            <p><strong>Số điện thoại:</strong> ${m.phone || 'Chưa cập nhật'}</p>
-                            <p><strong>Email:</strong> ${m.email || 'Chưa cập nhật'}</p>
-                            <p><strong>Địa chỉ / Số nhà:</strong> ${m.address || 'Chưa cập nhật'}</p>
-                        </div>
-                    `}
-
                     <div class="border-b pb-2">
                         <span class="text-stone-500 block mb-1">Cha / Mẹ:</span>
                         <p class="font-semibold text-stone-800">${parentNames}</p>
@@ -1446,55 +1301,11 @@
                         <p class="font-semibold text-stone-800">${spouseDisplay}</p>
                     </div>
 
-                    ${(m.inlawFather || m.inlawMother) ? `
-                        <div class="p-3 bg-amber-50 rounded-lg space-y-2 text-xs border border-amber-200">
-                            <p class="font-bold border-b border-amber-200 pb-1 text-crimson"><i class="fa-solid fa-house-user mr-1"></i> Bố Mẹ Đẻ (Thông Gia):</p>
-                            ${m.inlawFather ? `
-                                <div class="pl-2">
-                                    <p><strong>Bố đẻ:</strong> ${m.inlawFather} (${m.inlawFatherStatus || 'Còn sống'})</p>
-                                    <p>${m.inlawFatherStatus === 'Đã mất' ? '🕯️ Giỗ: ' + (m.inlawFatherDeath || 'Chưa rõ') : '📅 Sinh: ' + (m.inlawFatherBirth || 'Chưa rõ')}</p>
-                                </div>
-                            ` : ''}
-                            ${m.inlawMother ? `
-                                <div class="pl-2 pt-1 border-t border-amber-100">
-                                    <p><strong>Mẹ đẻ:</strong> ${m.inlawMother} (${m.inlawMotherStatus || 'Còn sống'})</p>
-                                    <p>${m.inlawMotherStatus === 'Đã mất' ? '🕯️ Giỗ: ' + (m.inlawMotherDeath || 'Chưa rõ') : '📅 Sinh: ' + (m.inlawMotherBirth || 'Chưa rõ')}</p>
-                                </div>
-                            ` : ''}
-                        </div>
-                    ` : ''}
-
                     <div class="border-b pb-2">
                         <span class="text-stone-500 block mb-1">Con cái (${children.length}):</span>
                         <div class="flex flex-wrap gap-1">
                             ${children.length > 0 ? children.map(c => `<span class="px-2 py-0.5 bg-stone-100 rounded text-xs">${c.name} ${c.birthYear ? '('+c.birthYear+')' : ''}</span>`).join('') : '<span class="text-stone-400">Chưa có</span>'}
                         </div>
-                    </div>
-
-                    ${inlawList.length > 0 ? `
-                        <div class="p-3 bg-amber-50 rounded-lg space-y-2 text-xs border border-amber-200">
-                            <p class="font-bold border-b border-amber-200 pb-1 text-crimson flex items-center">
-                                <i class="fa-solid fa-users-rectangle mr-1.5 text-amber-600"></i>
-                                Danh Sách Các Ông Bà Thông Gia (${inlawList.length}):
-                            </p>
-                            ${inlawList.map(item => `
-                                <div class="bg-white p-2 rounded border border-amber-100 shadow-sm space-y-0.5">
-                                    <p class="text-amber-900 font-semibold">• Thông gia nhà ${item.relationType} (${item.spouseName} - ${item.spouseRole} ${item.childName}):</p>
-                                    <p class="text-stone-600 pl-3">- Ông thông gia: <strong>${item.inlawFather || 'Chưa rõ'}</strong></p>
-                                    <p class="text-stone-600 pl-3">- Bà thông gia: <strong>${item.inlawMother || 'Chưa rõ'}</strong></p>
-                                </div>
-                            `).join('')}
-                        </div>
-                    ` : ''}
-
-                    <div class="border-b pb-2">
-                        <span class="text-stone-500 block mb-1">Quê quán / Nơi ở chung:</span>
-                        <p class="text-stone-800">${m.location || 'Chưa cập nhật'}</p>
-                    </div>
-
-                    <div>
-                        <span class="text-stone-500 block mb-1">Tiểu sử / Ghi chú:</span>
-                        <p class="text-stone-800 bg-stone-50 p-2 rounded text-xs leading-relaxed">${m.notes || 'Không có ghi chú.'}</p>
                     </div>
                 </div>
 
@@ -1529,12 +1340,6 @@
         }
 
         function openAddModal() {
-            let pwd = prompt("Nhập mật khẩu quản trị để thêm thành viên:");
-            if (pwd !== ADMIN_PASSWORD) {
-                alert("Sai mật khẩu! Bạn không có quyền thực hiện thao tác này.");
-                return;
-            }
-
             document.getElementById('modal-title').innerText = "Thêm Thành Viên Mới";
             document.getElementById('member-form').reset();
             document.getElementById('member-id').value = '';
@@ -1547,12 +1352,6 @@
         }
 
         function openEditModal(id) {
-            let pwd = prompt("Nhập mật khẩu quản trị để chỉnh sửa thành viên:");
-            if (pwd !== ADMIN_PASSWORD) {
-                alert("Sai mật khẩu! Không có quyền chỉnh sửa.");
-                return;
-            }
-
             closeDrawer();
             const m = members.find(item => item.id === id);
             if (!m) return;
@@ -1575,19 +1374,6 @@
             document.getElementById('form-father').value = m.fatherId || '';
             document.getElementById('form-mother').value = m.motherId || '';
             document.getElementById('form-spouse').value = (m.spouseIds && m.spouseIds.length > 0) ? m.spouseIds[0] : '';
-            
-            document.getElementById('form-inlaw-father').value = m.inlawFather || '';
-            document.getElementById('form-inlaw-father-birth').value = m.inlawFatherBirth || '';
-            document.getElementById('form-inlaw-father-status').value = m.inlawFatherStatus || 'Còn sống';
-            document.getElementById('form-inlaw-father-death').value = m.inlawFatherDeath || '';
-
-            document.getElementById('form-inlaw-mother').value = m.inlawMother || '';
-            document.getElementById('form-inlaw-mother-birth').value = m.inlawMotherBirth || '';
-            document.getElementById('form-inlaw-mother-status').value = m.inlawMotherStatus || 'Còn sống';
-            document.getElementById('form-inlaw-mother-death').value = m.inlawMotherDeath || '';
-
-            document.getElementById('form-location').value = m.location || '';
-            document.getElementById('form-notes').value = m.notes || '';
 
             toggleStatusFields();
             toggleInlawFields();
@@ -1613,17 +1399,14 @@
         }
 
         function toggleInlawFields() {
-            const fStatus = document.getElementById('form-inlaw-father-status').value;
-            const mStatus = document.getElementById('form-inlaw-mother-status').value;
+            const fStatus = document.getElementById('form-inlaw-father-status') ? document.getElementById('form-inlaw-father-status').value : 'Còn sống';
+            const mStatus = document.getElementById('form-inlaw-mother-status') ? document.getElementById('form-inlaw-mother-status').value : 'Còn sống';
 
             const fBox = document.getElementById('inlaw-father-death-box');
             const mBox = document.getElementById('inlaw-mother-death-box');
 
-            if (fStatus === 'Đã mất') fBox.classList.remove('hidden');
-            else fBox.classList.add('hidden');
-
-            if (mStatus === 'Đã mất') mBox.classList.remove('hidden');
-            else mBox.classList.add('hidden');
+            if (fBox) fBox.classList.toggle('hidden', fStatus !== 'Đã mất');
+            if (mBox) mBox.classList.toggle('hidden', mStatus !== 'Đã mất');
         }
 
         function handleFormSubmit(e) {
@@ -1657,17 +1440,7 @@
                 address: status === 'Còn sống' ? document.getElementById('form-address').value.trim() : '',
                 fatherId: fatherId,
                 motherId: document.getElementById('form-mother').value || null,
-                spouseIds: spouseIds,
-                inlawFather: document.getElementById('form-inlaw-father').value.trim(),
-                inlawFatherBirth: document.getElementById('form-inlaw-father-birth').value.trim(),
-                inlawFatherStatus: document.getElementById('form-inlaw-father-status').value,
-                inlawFatherDeath: document.getElementById('form-inlaw-father-status').value === 'Đã mất' ? document.getElementById('form-inlaw-father-death').value.trim() : '',
-                inlawMother: document.getElementById('form-inlaw-mother').value.trim(),
-                inlawMotherBirth: document.getElementById('form-inlaw-mother-birth').value.trim(),
-                inlawMotherStatus: document.getElementById('form-inlaw-mother-status').value,
-                inlawMotherDeath: document.getElementById('form-inlaw-mother-status').value === 'Đã mất' ? document.getElementById('form-inlaw-mother-death').value.trim() : '',
-                location: document.getElementById('form-location').value.trim(),
-                notes: document.getElementById('form-notes').value.trim()
+                spouseIds: spouseIds
             };
 
             const existingIndex = members.findIndex(m => m.id === id);
@@ -1677,16 +1450,6 @@
                 members.push(memberData);
             }
 
-            spouseIds.forEach(spouseId => {
-                const spouse = members.find(m => m.id === spouseId);
-                if (spouse) {
-                    if (!spouse.spouseIds) spouse.spouseIds = [];
-                    if (!spouse.spouseIds.includes(id)) {
-                        spouse.spouseIds.push(id);
-                    }
-                }
-            });
-
             recalculateAllGenerations();
             saveMembers();
             closeModal();
@@ -1695,22 +1458,9 @@
             renderTree();
             renderTable();
             renderAnniversaries();
-
-            fetch(WEB_APP_URL, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(memberData)
-            })
-            .then(() => {
-                console.log("Đã đồng bộ dữ liệu lên Google Sheets thành công!");
-            })
-            .catch(err => {
-                console.error("Lỗi đồng bộ Google Sheets:", err);
-            });
         }
 
-        // HÀM XÓA ĐÃ VÔ HIỆU HÓA HỎI MẬT KHẨU
+        // HÀM XÓA VÔ HIỆU HÓA MẬT KHẨU
         function deleteMember(id) {
             if (confirm("Ông có chắc chắn muốn xóa thành viên này khỏi gia phả?")) {
                 members = members.filter(m => m.id !== id);
