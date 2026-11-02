@@ -1714,16 +1714,16 @@ function convertLunarToSolar(lunarMonth, lunarDay) {
         }
 
         function deleteMember(id) {
-            let pwd = prompt("Nhập mật khẩu quản trị để xóa thành viên:");
-            if (pwd !== ADMIN_PASSWORD) {
-                alert("Sai mật khẩu! Không được phép xóa.");
-                return;
+            //let pwd = prompt("Nhập mật khẩu quản trị để xóa thành viên:");
+            //if (pwd !== ADMIN_PASSWORD) {
+               // alert("Sai mật khẩu! Không được phép xóa.");
+               // return;
             }
 
             if (confirm("Ông có chắc chắn muốn xóa thành viên này khỏi gia phả?")) {
                 members = members.filter(m => m.id !== id);
-                members.forEach(m => {
-                    if (m.fatherId === id) m.fatherId = null;
+               members.forEach(m => {
+                   if (m.fatherId === id) m.fatherId = null;
                     if (m.motherId === id) m.motherId = null;
                     if (m.spouseIds) {
                         m.spouseIds = m.spouseIds.filter(sId => sId !== id);
