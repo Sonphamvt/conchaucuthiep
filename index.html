@@ -1546,13 +1546,7 @@ function convertLunarToSolar(lunarMonth, lunarDay) {
             document.getElementById('member-modal').classList.remove('hidden');
         }
 
-        function openEditModal(id) {
-            //let pwd = prompt("Nhập mật khẩu quản trị để chỉnh sửa thành viên:");
-            //if (pwd !== ADMIN_PASSWORD) {
-                //alert("Sai mật khẩu! Không có quyền chỉnh sửa.");
-                //return;
-           // }
-
+function openEditModal(id) {
             closeDrawer();
             const m = members.find(item => item.id === id);
             if (!m) return;
