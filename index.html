@@ -33,6 +33,7 @@
             fill: none;
             stroke: #a8a29e;
             stroke-width: 1.5px;
+            transition: all 0.3s ease;
         }
 
         /* Hiệu ứng nhấp nháy phát sáng cho người sắp đến giỗ/sinh nhật */
@@ -53,7 +54,7 @@
 
     <!-- Mật khẩu quản trị -->
     <script>
-        const ADMIN_PASSWORD = "123"; // Ông có thể thay đổi mật khẩu tùy ý tại đây
+        const ADMIN_PASSWORD = "123";
     </script>
 
     <!-- Header / Navbar -->
@@ -111,7 +112,7 @@
             <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 flex flex-wrap justify-between items-center text-sm text-amber-900">
                 <div class="flex items-center space-x-2">
                     <i class="fa-solid fa-circle-info text-amber-700"></i>
-                    <span>Bấm nút [+] [-] trên thẻ để mở/thu gọn nhánh con cháu.</span>
+                    <span>Bấm nút [+] [-] trên thẻ để mở/thu gọn nhánh con cháu. Mặc định mở đến đời F7 và F8.</span>
                 </div>
                 
                 <!-- BỘ LỌC CHẾ ĐỘ XEM NỘI TỘC / NGOẠI TỘC -->
@@ -132,7 +133,7 @@
             </div>
 
             <!-- SVG Container -->
-            <div class="bg-white border border-stone-200 rounded-xl shadow-inner relative overflow-hidden h-[650px]" id="tree-container">
+            <div class="bg-white border border-stone-200 rounded-xl shadow-inner relative overflow-hidden h-[680px]" id="tree-container">
                 <div class="absolute top-4 right-4 z-10 flex flex-col space-y-1 bg-white p-1 rounded border shadow-md">
                     <button onclick="zoomIn()" class="p-2 hover:bg-gray-100 rounded text-stone-700" title="Phóng to"><i class="fa-solid fa-plus"></i></button>
                     <button onclick="resetZoom()" class="p-2 hover:bg-gray-100 rounded text-stone-700" title="Đặt lại"><i class="fa-solid fa-compress"></i></button>
@@ -150,7 +151,6 @@
                     <input type="text" id="search-input" oninput="renderTable()" placeholder="Tìm theo tên, quê quán..." class="w-full pl-9 pr-4 py-2 border border-stone-300 rounded-lg text-sm focus:outline-none focus:border-crimson">
                 </div>
                 <div class="flex flex-wrap gap-2">
-                    <!-- Ô LỌC NHÁNH CON CHÁU -->
                     <select id="filter-ancestor" onchange="renderTable()" class="border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-crimson bg-white">
                         <option value="">-- Tất cả các nhánh (Con cháu của...) --</option>
                     </select>
@@ -252,13 +252,11 @@
                     </div>
                 </div>
 
-                <!-- Link hình ảnh đại diện -->
                 <div>
                     <label class="block text-xs font-bold text-stone-700 uppercase mb-1">Đường dẫn hình ảnh (URL Ảnh đại diện)</label>
                     <input type="url" id="form-avatar" placeholder="https://example.com/avatar.jpg" class="w-full p-2 border border-stone-300 rounded focus:border-crimson outline-none text-sm">
                 </div>
 
-                <!-- Fields khi ĐÃ MẤT -->
                 <div id="deceased-fields" class="hidden p-3 bg-red-50 rounded-lg border border-red-100 space-y-3">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
@@ -272,7 +270,6 @@
                     </div>
                 </div>
 
-                <!-- Fields khi CÒN SỐNG -->
                 <div id="living-fields" class="p-3 bg-blue-50/60 rounded-lg border border-blue-100 space-y-3">
                     <p class="text-xs font-bold text-blue-900 uppercase"><i class="fa-solid fa-address-book mr-1"></i> Thông Tin Liên Lạc (Dành cho người còn sống)</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -291,7 +288,6 @@
                     </div>
                 </div>
 
-                <!-- Mối quan hệ -->
                 <div class="border-t border-stone-200 pt-3">
                     <p class="text-xs font-bold text-crimson uppercase mb-2">Mối quan hệ gia đình (Trong dòng họ)</p>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -316,11 +312,9 @@
                     </div>
                 </div>
 
-                <!-- Thông tin Bố Mẹ đẻ (Dành cho Dâu/Rể) -->
                 <div class="border-t border-stone-200 pt-3 bg-amber-50/70 p-3 rounded-lg border border-amber-200 space-y-3">
                     <p class="text-xs font-bold text-amber-900 uppercase"><i class="fa-solid fa-house-user mr-1"></i> Bố Mẹ Đẻ (Dành cho Dâu / Rể - Hiển thị ở chế độ Ngoại Tộc)</p>
                     
-                    <!-- Bố đẻ -->
                     <div class="p-2 bg-white rounded border border-amber-200 space-y-2">
                         <p class="text-xs font-bold text-amber-800">Thông tin Bố đẻ</p>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -336,7 +330,6 @@
                         </div>
                     </div>
 
-                    <!-- Mẹ đẻ -->
                     <div class="p-2 bg-white rounded border border-amber-200 space-y-2">
                         <p class="text-xs font-bold text-amber-800">Thông tin Mẹ đẻ</p>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -643,32 +636,29 @@
             return match ? parseInt(match[0]) : 9999;
         }
 
-        /* --- BẢNG TRA CỨU ÂM LỊCH SANG DƯƠNG LỊCH CHUẨN XÁC NĂM 2026 - 2027 --- */
-        // Bảng tra cứu chuẩn xác năm 2026 - 2027
-const lunarMonthStart2026 = {
-    1: { year: 2026, m: 2, d: 17 },
-    2: { year: 2026, m: 3, d: 19 },
-    3: { year: 2026, m: 4, d: 17 },
-    4: { year: 2026, m: 5, d: 17 },
-    5: { year: 2026, m: 6, d: 15 },
-    6: { year: 2026, m: 7, d: 15 },
-    7: { year: 2026, m: 8, d: 13 },
-    8: { year: 2026, m: 9, d: 12 },
-    9: { year: 2026, m: 10, d: 10 },
-    10: { year: 2026, m: 11, d: 9 },
-    11: { year: 2026, m: 12, d: 9 },
-    12: { year: 2027, m: 1, d: 28 } // Tháng 12 âm lịch nằm ở đầu năm 2027 dương lịch
-};
+        const lunarMonthStart2026 = {
+            1: { year: 2026, m: 2, d: 17 },
+            2: { year: 2026, m: 3, d: 19 },
+            3: { year: 2026, m: 4, d: 17 },
+            4: { year: 2026, m: 5, d: 17 },
+            5: { year: 2026, m: 6, d: 15 },
+            6: { year: 2026, m: 7, d: 15 },
+            7: { year: 2026, m: 8, d: 13 },
+            8: { year: 2026, m: 9, d: 12 },
+            9: { year: 2026, m: 10, d: 10 },
+            10: { year: 2026, m: 11, d: 9 },
+            11: { year: 2026, m: 12, d: 9 },
+            12: { year: 2027, m: 1, d: 28 }
+        };
 
-function convertLunarToSolar(lunarMonth, lunarDay) {
-    const start = lunarMonthStart2026[lunarMonth];
-    if (!start) return null;
+        function convertLunarToSolar(lunarMonth, lunarDay) {
+            const start = lunarMonthStart2026[lunarMonth];
+            if (!start) return null;
 
-    // Lấy đúng năm định nghĩa trong bảng (2026 hoặc 2027)
-    let targetSolar = new Date(start.year, start.m - 1, start.d);
-    targetSolar.setDate(targetSolar.getDate() + (lunarDay - 1));
-    return targetSolar;
-}
+            let targetSolar = new Date(start.year, start.m - 1, start.d);
+            targetSolar.setDate(targetSolar.getDate() + (lunarDay - 1));
+            return targetSolar;
+        }
 
         function checkUpcomingAnniversary(deathDateStr) {
             if (!deathDateStr) return { isUpcoming: false };
@@ -769,13 +759,13 @@ function convertLunarToSolar(lunarMonth, lunarDay) {
                 spouseList.forEach((sp, idx) => {
                     if (sp.inlawFather || sp.inlawMother) {
                         const spouseCenterX = 170 + (idx * 170);
-                        if (sp.inlawFather) leftEdge = Math.min(leftEdge, spouseCenterX - 110);
-                        if (sp.inlawMother) rightEdge = Math.max(rightEdge, spouseCenterX + 110);
+                        if (sp.inlawFather) leftEdge = Math.min(leftEdge, spouseCenterX - 115);
+                        if (sp.inlawMother) rightEdge = Math.max(rightEdge, spouseCenterX + 115);
                     }
                 });
             }
 
-            return { left: leftEdge, right: rightEdge };
+            return { left: leftEdge, right: rightEdge, totalWidth: rightEdge - leftEdge };
         }
 
         function renderTree() {
@@ -857,7 +847,8 @@ function convertLunarToSolar(lunarMonth, lunarDay) {
             if (isInitialLoad) {
                 function initCollapse(d) {
                     if (d.children && d.children.length > 0) {
-                        if (d.generation >= 8 && d.id !== "virtual-root") {
+                        // MẶC ĐỊNH MỞ ĐẾN ĐỜI F7 VÀ F8 (THU GỌN TỪ F9 TRỞ ĐI)
+                        if (d.generation >= 9 && d.id !== "virtual-root") {
                             collapsedNodes.add(d.id);
                         }
                         d.children.forEach(initCollapse);
@@ -879,8 +870,9 @@ function convertLunarToSolar(lunarMonth, lunarDay) {
             });
             svg.call(zoomHandler);
 
+            // TÍNH TOÁN ĐỘ DÀY BẢNG VÀ KHOẢNG CÁCH THUẬT TOÁN ĐỘNG THEO TỔNG SỐ THẺ TRÊN MỖI ĐỜI
             const treeLayout = d3.tree()
-                .nodeSize([200, 230]);
+                .nodeSize([220, 240]);
 
             treeLayout(root);
 
@@ -890,9 +882,16 @@ function convertLunarToSolar(lunarMonth, lunarDay) {
                 nodesByDepth[d.depth].push(d);
             });
 
+            // THUẬT TOÁN ĐỊNH VỊ KHÔNG GIAN HÀNG NGANG (DENSITY-AWARE SPACING)
             Object.keys(nodesByDepth).forEach(depth => {
                 const rowNodes = nodesByDepth[depth];
                 rowNodes.sort((a, b) => a.x - b.x);
+
+                // Tự động tính toán khoảng cách an toàn tối thiểu dựa vào chế độ xem và số lượng thẻ tên cùng đời
+                const countInRow = rowNodes.length;
+                let dynamicGap = 50; 
+                if (viewMode === 'all') dynamicGap = 65; // Mở rộng khoảng cách ở chế độ Ngoại tộc
+                if (countInRow > 8) dynamicGap = 40;     // Nén tối ưu khi có quá đông người cùng 1 thế hệ
 
                 for (let i = 0; i < rowNodes.length - 1; i++) {
                     const currNode = rowNodes[i];
@@ -904,10 +903,8 @@ function convertLunarToSolar(lunarMonth, lunarDay) {
                     const rightEdgeCurr = currNode.x + boxCurr.right;
                     const leftEdgeNext = nextNode.x + boxNext.left;
 
-                    const safeGap = 45;
-
-                    if (leftEdgeNext < rightEdgeCurr + safeGap) {
-                        const shiftDistance = (rightEdgeCurr + safeGap) - leftEdgeNext;
+                    if (leftEdgeNext < rightEdgeCurr + dynamicGap) {
+                        const shiftDistance = (rightEdgeCurr + dynamicGap) - leftEdgeNext;
                         for (let j = i + 1; j < rowNodes.length; j++) {
                             rowNodes[j].x += shiftDistance;
                         }
@@ -1713,17 +1710,12 @@ function convertLunarToSolar(lunarMonth, lunarDay) {
             });
         }
 
+        // HÀM XÓA ĐÃ VÔ HIỆU HÓA HỎI MẬT KHẨU
         function deleteMember(id) {
-            let pwd = prompt("Nhập mật khẩu quản trị để xóa thành viên:");
-            if (pwd !== ADMIN_PASSWORD) {
-                alert("Sai mật khẩu! Không được phép xóa.");
-                return;
-            }
-
             if (confirm("Ông có chắc chắn muốn xóa thành viên này khỏi gia phả?")) {
                 members = members.filter(m => m.id !== id);
-               members.forEach(m => {
-                   if (m.fatherId === id) m.fatherId = null;
+                members.forEach(m => {
+                    if (m.fatherId === id) m.fatherId = null;
                     if (m.motherId === id) m.motherId = null;
                     if (m.spouseIds) {
                         m.spouseIds = m.spouseIds.filter(sId => sId !== id);
