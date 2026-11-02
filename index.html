@@ -857,7 +857,7 @@ function convertLunarToSolar(lunarMonth, lunarDay) {
             if (isInitialLoad) {
                 function initCollapse(d) {
                     if (d.children && d.children.length > 0) {
-                        if (d.generation >= 5 && d.id !== "virtual-root") {
+                        if (d.generation >= 8 && d.id !== "virtual-root") {
                             collapsedNodes.add(d.id);
                         }
                         d.children.forEach(initCollapse);
