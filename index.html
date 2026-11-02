@@ -877,7 +877,7 @@ function convertLunarToSolar(lunarMonth, lunarDay) {
             svg.call(zoomHandler);
 
             const treeLayout = d3.tree()
-                .nodeSize([200, 230]);
+                .nodeSize([240, 260]);
 
             treeLayout(root);
 
@@ -901,7 +901,7 @@ function convertLunarToSolar(lunarMonth, lunarDay) {
                     const rightEdgeCurr = currNode.x + boxCurr.right;
                     const leftEdgeNext = nextNode.x + boxNext.left;
 
-                    const safeGap = 45;
+                    const safeGap = 70;
 
                     if (leftEdgeNext < rightEdgeCurr + safeGap) {
                         const shiftDistance = (rightEdgeCurr + safeGap) - leftEdgeNext;
